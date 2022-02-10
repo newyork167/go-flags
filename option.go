@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 	"unicode/utf8"
 )
@@ -67,6 +68,9 @@ type Option struct {
 
 	// If true, the option is not displayed in the help or man page
 	Hidden bool
+
+	// If provided, the OSs that will respond to this flag
+	OS []string
 
 	// The group which the option belongs to
 	group *Group
@@ -566,4 +570,13 @@ func (option *Option) isValidValue(arg string) error {
 		return fmt.Errorf("expected argument for flag `%s', but got option `%s'", option, arg)
 	}
 	return nil
+}
+
+func (option *Option) isValidForRuntimeOS() bool {
+	for _, s := range option.OS {
+		if runtime.GOOS == s {
+			return true
+		}
+	}
+	return false
 }

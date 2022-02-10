@@ -520,6 +520,10 @@ func (p *parseState) estimateCommand() error {
 }
 
 func (p *Parser) parseOption(s *parseState, name string, option *Option, canarg bool, argument *string) (err error) {
+	if len(option.OS) > 0 && !option.isValidForRuntimeOS() {
+		return nil
+	}
+
 	if !option.canArgument() {
 		if argument != nil {
 			return newErrorf(ErrNoArgumentForBool, "bool flag `%s' cannot have an argument", option)

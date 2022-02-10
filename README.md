@@ -28,6 +28,7 @@ Supported features:
 * Supports maps
 * Supports function callbacks
 * Supports namespaces for (nested) option groups
+* Supports OS specific flags
 
 The flags package uses structs, reflection and struct field tags
 to allow users to specify command line options. This results in very simple
@@ -78,6 +79,11 @@ var opts struct {
 
 	// Example of a map
 	IntMap map[string]int `long:"intmap" description:"A map from string to int"`
+	
+	// Example of OS specific flags
+    LinuxOnly string `long:"linuxonly" os:"linux"`
+    DarwinOnly string `long:"darwinonly" os:"darwin"`
+    LinuxAndDarwin string `long:"linuxanddarwin" choice:"linux" choice:"darwin" os:"linux" os:"darwin"`
 }
 
 // Callback which will invoke callto:<argument> to call a number.

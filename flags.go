@@ -29,6 +29,7 @@ The following features are supported in go-flags:
     Supports maps
     Supports function callbacks
     Supports namespaces for (nested) option groups
+	Supports OS specific flags
 
 Additional features specific to Windows:
     Options with short names (/v)
@@ -155,6 +156,8 @@ The following is a list of tags for struct fields supported by go-flags:
     positional-arg-name:  used on a field in a positional argument struct; name
                           of the positional argument placeholder to be shown in
                           the help (optional)
+	os:					  Which OS this applies to (can be multiple)
+  						  (e.g. `os:"darwin" os:"linux"`(optional)
 
 Either the `short:` tag or the `long:` must be specified to make the field eligible as an
 option.
