@@ -29,6 +29,7 @@ Supported features:
 * Supports function callbacks
 * Supports namespaces for (nested) option groups
 * Supports OS specific flags
+* Supports requiring other parameters
 
 The flags package uses structs, reflection and struct field tags
 to allow users to specify command line options. This results in very simple
