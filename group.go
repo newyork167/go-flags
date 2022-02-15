@@ -135,6 +135,14 @@ func (g *Group) FindOptionByShortName(shortName rune) *Option {
 	})
 }
 
+// FindOptionByFieldName finds an option that is part of the group, or any of
+// its subgroups, by matching its field name.
+func (g *Group) FindOptionByFieldName(fieldName string) *Option {
+	return g.findOption(func(option *Option) bool {
+		return option.field.Name == fieldName
+	})
+}
+
 func newGroup(shortDescription string, longDescription string, data interface{}) *Group {
 	return &Group{
 		ShortDescription: shortDescription,
@@ -285,6 +293,7 @@ func (g *Group) scanStruct(realval reflect.Value, sfield *reflect.StructField, h
 		choices := mtag.GetMany("choice")
 		hidden := !isStringFalsy(mtag.Get("hidden"))
 		os := mtag.GetMany("os")
+		requires := mtag.GetMany("requires")
 
 		option := &Option{
 			Description:      description,
@@ -301,6 +310,7 @@ func (g *Group) scanStruct(realval reflect.Value, sfield *reflect.StructField, h
 			Choices:          choices,
 			Hidden:           hidden,
 			OS:               os,
+			Requires:         requires,
 
 			group: g,
 
@@ -428,4 +438,40 @@ func (g *Group) groupByName(name string) *Group {
 	}
 
 	return g.Find(name)
+}
+
+func (g *Group) getGroupOptionByString(requiredOption string) (reqOpt *Option) {
+	reqOpt = g.FindOptionByLongName(requiredOption)
+
+	// Attempt to find by short name
+	if reqOpt == nil {
+		reqOpt = g.FindOptionByShortName([]rune(requiredOption)[0])
+	}
+
+	// Attempt to find by field name
+	if reqOpt == nil {
+		reqOpt = g.FindOptionByFieldName(requiredOption)
+	}
+
+	return
+}
+
+func (g *Group) requiresSatisfied() (bool, error) {
+	// TODO(newyork167): Super ugly, come back and clean up
+	for _, group := range g.Groups() {
+		for _, option := range group.options {
+			if !option.IsSet() {
+				continue
+			}
+
+			for _, requiredOption := range option.Requires {
+				reqOpt := g.getGroupOptionByString(requiredOption)
+
+				if reqOpt == nil || !reqOpt.IsSet() {
+					return false, errors.New(option.getRequiredOptionsAsString())
+				}
+			}
+		}
+	}
+	return true, nil
 }

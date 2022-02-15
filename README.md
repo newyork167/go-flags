@@ -81,9 +81,21 @@ var opts struct {
 	IntMap map[string]int `long:"intmap" description:"A map from string to int"`
 	
 	// Example of OS specific flags
-    LinuxOnly string `long:"linuxonly" os:"linux"`
-    DarwinOnly string `long:"darwinonly" os:"darwin"`
-    LinuxAndDarwin string `long:"linuxanddarwin" choice:"linux" choice:"darwin" os:"linux" os:"darwin"`
+	LinuxOnly string `long:"linuxonly" os:"linux"`
+	DarwinOnly string `long:"darwinonly" os:"darwin"`
+	LinuxAndDarwin string `long:"linuxanddarwin" choice:"linux" choice:"darwin" os:"linux" os:"darwin"`
+	
+	// Example of requires (requiring another flag)
+	Required string `long:"required" description:"Required by another flag"`
+	RequiresRequired string `long:"requires_required" description:"Requires required" requires:"required"`
+	RequiemForARequire string `long:"requiem" description:"Requires required and RequiresRequired" requires:"required" requires:"RequiresRequired"`
+	
+	// You can use the field tag instead and the required string builder will return the long or shortname (longest to shortest)
+	// For example, using the following: `./app --field field` will return that `requiem` is required and not `RequiemForARequire` 
+	RequiringFieldName string `long:"field" description:"Requires RequiemForARequire" requires:"RequiemForARequire"`
+	
+	// Coming soon, boolean logic! (basic functionality, inside parenthesis first, then left to right)
+	RequireBool string `long:"reqbool" description:"Requires (a and b) or c" requires:"(a && b) || c"`
 }
 
 // Callback which will invoke callto:<argument> to call a number.

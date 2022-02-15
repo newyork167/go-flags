@@ -72,6 +72,9 @@ type Option struct {
 	// If provided, the OSs that will respond to this flag
 	OS []string
 
+	// If provided, the flags that are required to be provided alongside this one
+	Requires []string
+
 	// The group which the option belongs to
 	group *Group
 
@@ -579,4 +582,43 @@ func (option *Option) isValidForRuntimeOS() bool {
 		}
 	}
 	return false
+}
+
+func (option *Option) getLongestName() string {
+	if option.LongName != "" {
+		return option.LongName
+	}
+
+	return string(option.ShortName)
+}
+
+func (option *Option) getOptionByRequiresTag(requiresTag string) *Option {
+	return option.group.getGroupOptionByString(requiresTag)
+}
+
+func (option *Option) getRequiredOptionsAsString() string {
+	if len(option.Requires) == 0 {
+		return fmt.Sprintf("Option %s does not require other options", option.getLongestName())
+	}
+
+	if len(option.Requires) == 1 {
+		return fmt.Sprintf("Option %s requires: %s",
+			option.getLongestName(),
+			option.getOptionByRequiresTag(option.Requires[0]).getLongestName())
+	}
+
+	reqStrBuilder := func(requiredOptions []string) (reqStr []string) {
+		for _, reqOpt := range requiredOptions {
+			reqStr = append(reqStr, option.getOptionByRequiresTag(reqOpt).getLongestName())
+		}
+		return
+	}
+
+	reqStrs := reqStrBuilder(option.Requires)
+
+	return fmt.Sprintf("Option %s requires: %s and %s",
+		option.getLongestName(),
+		strings.Join(reqStrs[:len(reqStrs)-1], ", "),
+		reqStrs[len(reqStrs)-1])
+
 }

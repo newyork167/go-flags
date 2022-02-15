@@ -322,6 +322,12 @@ func (p *Parser) ParseArgs(args []string) ([]string, error) {
 		s.checkRequired(p)
 	}
 
+	if s.err == nil {
+		p.eachGroup(func(group *Group) {
+			_, s.err = p.Group.requiresSatisfied()
+		})
+	}
+
 	var reterr error
 
 	if s.err != nil {
